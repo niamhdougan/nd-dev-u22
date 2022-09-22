@@ -1,0 +1,72 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.231.6/containers/python-3
+{
+    "name": "Python 3",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".",
+        "args": {}
+    },
+    "remoteEnv": {
+        "DISPLAY": "${localEnv:DISPLAY}",
+        "CONTAINER_HOST": "unix:/var/run/docker.sock",
+        "USER": "${localEnv:USER}"
+    },
+    // Set *default* container specific settings.json values on container create.
+    "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.pylintEnabled": false,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+        "python.linting.enabled": true,
+        "python.testing.pytestArgs": [],
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        "python.formatting.provider": "black",
+        "python.languageServer": "Pylance",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    // Add the IDs of extensions you want installed when the container is created.
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "streetsidesoftware.code-spell-checker",
+        "ryanluker.vscode-coverage-gutters",
+        "mhutchie.git-graph",
+        "eamodio.gitlens",
+        "gruntfuggly.todo-tree",
+        "redhat.vscode-yaml",
+        "nsd.vscode-epics",
+        "alefragnani.bookmarks"
+    ],
+    // expose a user socket for host podman API
+    "initializeCommand": "systemctl --user start podman.socket",
+    "runArgs": [
+        "--network=podman",
+        "--cap-add=sys_admin,mknod",
+        "--device=/dev/fuse",
+        "--security-opt=label=type:container_runtime_t",
+        "--annotation=run.oci.keep_original_groups=1",
+        "--storage-opt=ignore_chown_errors=true",
+        "-v=${localEnv:HOME}/.ssh:/root/.ssh",
+        "-v=${localEnv:HOME}/.bash_history:/root/.bash_history",
+        "-v=${localWorkspaceFolder}/.bashrc_dev:/root/.bashrc",
+        "-v=${localWorkspaceFolder}/.inputrc:/root/.inputrc",
+        "-v=${localEnv:XDG_RUNTIME_DIR}/podman/podman.sock:/podman.sock",
+        "-v=/tmp:/tmp",
+        "-v=${localEnv:XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock"
+    ],
+    // can install peer python projects directly into venv
+    // "postStartCommand": "pip install -e ../ophyd[dev]",
+    "mounts": [
+        // map in home directory - not strictly necessary but may be useful
+        "source=${localEnv:HOME},target=${localEnv:HOME},type=bind,consistency=cached"
+    ],
+    // mount the parent folder so we can add peers to the workspace
+    // use localWorkspaceFolder so that paths inside and outside the container match
+    "workspaceMount": "source=${localWorkspaceFolder}/..,target=${localWorkspaceFolder}/..,type=bind",
+    "workspaceFolder": "${localWorkspaceFolder}"
+}

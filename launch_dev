@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# launch the workspace developer container outside of vscode
+
+thisdir=$(realpath $(dirname ${BASH_SOURCE[0]}))
+
+pwd=$(pwd)
+cd $thisdir
+
+echo "building with logs in /tmp/launch_dev.log ..." 
+podman build -t dev_ws ${thisdir}/.devcontainer > /tmp/launch_dev.log
+echo "build complete."
+
+mounts="
+-v/${pwd}/..:${pwd}/..
+-v=${HOME}:${HOME}
+-v=${HOME}/.ssh:/root/.ssh
+-v=${HOME}/.bash_history:/root/.bash_history
+-v=.bashrc_dev:/root/.bashrc
+-v=.inputrc:/root/.inputrc
+-v=${XDG_RUNTIME_DIR}/podman/podman.sock:/var/run/docker.sock
+-v=/tmp/.X11-unix/:/tmp/.X11-unix/
+"
+
+# --security-opt=label=disable
+# 
+
+opts="
+-e DISPLAY
+-e USER
+-e CONTAINER_HOST=unix:/var/run/docker.sock
+--network=podman
+--cap-add=sys_admin,mknod
+--device=/dev/fuse
+--security-opt=label=type:container_runtime_t
+--annotation=run.oci.keep_original_groups=1
+--storage-opt=ignore_chown_errors=true
+"
+
+systemctl --user start podman.socket
+podman run ${opts} -w ${pwd} --rm ${mounts} -it "$@" dev_ws bash

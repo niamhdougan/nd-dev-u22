@@ -1,0 +1,65 @@
+{
+    "folders": [
+        {
+            "path": "."
+        },
+    ],
+    "settings": {
+        "python.linting.pylintEnabled": false,
+        "python.linting.flake8Enabled": true,
+        "python.linting.mypyEnabled": true,
+        "python.linting.enabled": true,
+        "python.testing.pytestArgs": [],
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        "python.formatting.provider": "black",
+        "python.languageServer": "Pylance",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+        }
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Debug Unit Test",
+                "type": "python",
+                "request": "launch",
+                "justMyCode": false,
+                "program": "${file}",
+                "purpose": [
+                    "debug-test"
+                ],
+                "console": "integratedTerminal",
+                "env": {
+                    // The default config in setup.cfg's "[tool:pytest]" adds coverage.
+                    // Cannot have coverage and debugging at the same time.
+                    // https://github.com/microsoft/vscode-python/issues/693
+                    "PYTEST_ADDOPTS": "--no-cov"
+                },
+            }
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "type": "shell",
+                "label": "Docs, Lint and Tests with coverage",
+                "command": "tox -p",
+                "options": {
+                    "cwd": "${workspaceRoot}"
+                },
+                "problemMatcher": [],
+            }
+        ]
+    },
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.cpptools-extension-pack",
+            "ms-python.vscode-pylance",
+            "ryanluker.vscode-coverage-gutters"
+        ]
+    }
+}

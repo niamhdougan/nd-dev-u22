@@ -1,0 +1,31 @@
+# ~/.bashrc_dev: run commands for all shells in the devcontainer
+
+export LS_OPTIONS='--color=auto'
+eval "$(dircolors)"
+alias ls='ls $LS_OPTIONS'
+alias ll='ls $LS_OPTIONS -l'
+alias l='ls $LS_OPTIONS -lA'
+
+# setup completion
+if [[ -f /usr/share/bash-completion/completions/git ]] ; then
+ source /usr/share/bash-completion/completions/git
+elif [[ -f /etc/bash_completion.d/git ]] ; then
+  source /etc/bash_completion.d/git
+fi
+source <(podman completion bash)
+
+# share history between all terminal instances
+export HISTIGNORE="&:l[sl]:[fb]g:exit"
+export HISTFILESIZE=10000
+shopt -s histappend
+export PROMPT_COMMAND='history -a'
+
+# devcontainer HOME is /root but USER is passed in and /home/${USER} is mounted
+rc=/home/${USER}/.bashrc_dev
+
+# execute the personal bash run commands script in user's home directory
+if [[ -f ${rc} ]] ; then
+  source ${rc}
+fi
+
+
